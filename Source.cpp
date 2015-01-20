@@ -19,21 +19,22 @@ using namespace std;
 int delay = 100;
 
 vector<Enemigo> enemigos;
+vector<Barrera> barreras;
 
 void collideWorld(){
 
 	for(int i =0; i<numEne*niveles;i++)
 		if(enemigos[i].collideRight(25.0,15.0,25.0,-15.0)){
 			for(int j =0; j<numEne*niveles;j++){
-				enemigos[j].vel=-enemigos[j].vel*2;
-				enemigos[j].y-=2;
+				enemigos[j].vel=-(enemigos[j].vel*1.5);
+				enemigos[j].y-=2.5;
 				
 			}
 			break;
 		}else if(enemigos[i].collideLeft(-25.0,15.0,-25.0,-15.0)){
 			for(int j =0; j<numEne*niveles;j++){
-				enemigos[j].vel=-enemigos[j].vel*2;
-				enemigos[j].y-=2;
+				enemigos[j].vel=-(enemigos[j].vel*1.5);
+				enemigos[j].y-=2.5;
 				
 			}
 			break;
@@ -55,6 +56,12 @@ void cargarEnemigos(){
 			enemigos.push_back(Enemigo::Enemigo(-20.0+6.0*i+(j % 2)*3,24-5*j));
 }
 
+void cargarBarreras(){
+	barreras.push_back(Barrera::Barrera(-16.0,-16.0));
+	barreras.push_back(Barrera::Barrera(0.0,-16.0));
+	barreras.push_back(Barrera::Barrera(16.0,-16.0));
+}
+
 void updateEnemigos(){
 	for(int i =0; i<numEne*niveles;i++)
 		enemigos[i].update();
@@ -63,6 +70,11 @@ void updateEnemigos(){
 void drawEnemigos(){
 	for(int i =0; i<numEne*niveles;i++)
 		enemigos[i].draw();
+}
+
+void drawBarreras(){
+	for(int i =0;i<3;i++)
+		barreras[i].draw();
 }
 
 void changeViewport(int w, int h) {
@@ -177,7 +189,7 @@ void render(){
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	//grid();
-	ejesCoordenada(30);
+	//ejesCoordenada(30);
 
 	glEnable(GL_PROGRAM_POINT_SIZE);
 	glPointSize(5.0);
@@ -188,11 +200,92 @@ void render(){
 		glVertex2f(25.0,-30.0);
 	glEnd();
 
-	glBegin(GL_LINE_LOOP);
-		glVertex2f(-25.0,-16.0);
-		glVertex2f(25.0,-16.0);
-	glEnd();
+//	glBegin(GL_LINE_LOOP);
+//		glVertex2f(-25.0,-16.0);
+//		glVertex2f(25.0,-16.0);
+//	glEnd();
 
+/*
+	glPushMatrix();
+		glTranslatef(-2.5,0.0,0.0);
+		glBegin(GL_POLYGON);
+			glVertex2f(2.0,1.0);
+			glVertex2f(2.0,0.0);
+			glVertex2f(-2.0,0.0);
+			glVertex2f(-2.0,1.0);
+		glEnd();
+	glPopMatrix();
+	glPushMatrix();
+		glTranslatef(2.5,0.0,0.0);
+		glBegin(GL_POLYGON);
+			glVertex2f(2.0,1.0);
+			glVertex2f(2.0,0.0);
+			glVertex2f(-2.0,0.0);
+			glVertex2f(-2.0,1.0);
+		glEnd();
+	glPopMatrix();
+	glPushMatrix();
+		glTranslatef(0.0,-1.5,0.0);
+		glPushMatrix();
+			glTranslatef(4.5,0.0,0.0);
+			glBegin(GL_POLYGON);
+				glVertex2f(2.0,1.0);
+				glVertex2f(2.0,0.0);
+				glVertex2f(-2.0,0.0);
+				glVertex2f(-2.0,1.0);
+			glEnd();
+		glPopMatrix();
+		glPushMatrix();
+			glTranslatef(-4.5,0.0,0.0);
+			glBegin(GL_POLYGON);
+				glVertex2f(2.0,1.0);
+				glVertex2f(2.0,0.0);
+				glVertex2f(-2.0,0.0);
+				glVertex2f(-2.0,1.0);
+			glEnd();
+		glPopMatrix();
+		glTranslatef(0.0,-1.5,0.0);
+		glPushMatrix();
+		glTranslatef(-2.5,0.0,0.0);
+		glBegin(GL_POLYGON);
+			glVertex2f(2.0,1.0);
+			glVertex2f(2.0,0.0);
+			glVertex2f(-2.0,0.0);
+			glVertex2f(-2.0,1.0);
+		glEnd();
+		glTranslatef(-4.5,0.0,0.0);
+		glBegin(GL_POLYGON);
+			glVertex2f(2.0,1.0);
+			glVertex2f(2.0,0.0);
+			glVertex2f(-2.0,0.0);
+			glVertex2f(-2.0,1.0);
+		glEnd();
+		glPopMatrix();
+		glPushMatrix();
+			glTranslatef(2.5,0.0,0.0);
+			glBegin(GL_POLYGON);
+				glVertex2f(2.0,1.0);
+				glVertex2f(2.0,0.0);
+				glVertex2f(-2.0,0.0);
+				glVertex2f(-2.0,1.0);
+			glEnd();
+			glTranslatef(4.5,0.0,0.0);
+			glBegin(GL_POLYGON);
+				glVertex2f(2.0,1.0);
+				glVertex2f(2.0,0.0);
+				glVertex2f(-2.0,0.0);
+				glVertex2f(-2.0,1.0);
+			glEnd();
+		glPopMatrix();
+	glPopMatrix();
+*/
+
+	drawBarreras();
+
+//	drawBarrera(-16.0,-16.0);
+//	drawBarrera(0,-16.0);
+//	drawBarrera(16.0,-16.0);
+	
 	drawEnemigos();
 	glutSwapBuffers();
 }
@@ -214,9 +307,11 @@ int main (int argc, char** argv) {
 
 	glutCreateWindow("Juego Opengl");
 	cargarEnemigos();
+	cargarBarreras();
+
 	glutReshapeFunc(changeViewport);
 	glutDisplayFunc(render);
-	glutTimerFunc(delay,update,0);
+//	glutTimerFunc(delay,update,0);
 	
 	GLenum err = glewInit();
 	if (GLEW_OK != err) {
