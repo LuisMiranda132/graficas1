@@ -1,81 +1,24 @@
 #include"util.h"
 
+void drawBar(){
+	glBegin(GL_POLYGON);
+		glVertex2f(1.5,1.0);
+		glVertex2f(1.5,0.0);
+		glVertex2f(-1.5,0.0);
+		glVertex2f(-1.5,1.0);
+	glEnd();
+}
+
 void Barrera::draw(){
-	glPushMatrix();
-		glTranslatef(this->x,this->y,0.0);
-		glPushMatrix();
-			glTranslatef(-1.75,0.0,0.0);
-			glBegin(GL_POLYGON);
-				glVertex2f(1.5,1.0);
-				glVertex2f(1.5,0.0);
-				glVertex2f(-1.5,0.0);
-				glVertex2f(-1.5,1.0);
-			glEnd();
-		glPopMatrix();
-		glPushMatrix();
-			glTranslatef(1.75,0.0,0.0);
-			glBegin(GL_POLYGON);
-				glVertex2f(1.5,1.0);
-				glVertex2f(1.5,0.0);
-				glVertex2f(-1.5,0.0);
-				glVertex2f(-1.5,1.0);
-			glEnd();
-		glPopMatrix();
-		glPushMatrix();
-			glTranslatef(0.0,-1.5,0.0);
+		for(int i=0; i<this->bloques.size();i++){
 			glPushMatrix();
-				glTranslatef(3.5,0.0,0.0);
-				glBegin(GL_POLYGON);
-					glVertex2f(1.5,1.0);
-					glVertex2f(1.5,0.0);
-					glVertex2f(-1.5,0.0);
-					glVertex2f(-1.5,1.0);
-				glEnd();
-			glPopMatrix();
-			glPushMatrix();
-				glTranslatef(-3.5,0.0,0.0);
-				glBegin(GL_POLYGON);
-					glVertex2f(1.5,1.0);
-					glVertex2f(1.5,0.0);
-					glVertex2f(-1.5,0.0);
-					glVertex2f(-1.5,1.0);
-				glEnd();
-			glPopMatrix();
-			glTranslatef(0.0,-1.5,0.0);
-			glPushMatrix();
-				glTranslatef(-1.75,0.0,0.0);
-				glBegin(GL_POLYGON);
-					glVertex2f(1.5,1.0);
-					glVertex2f(1.5,0.0);
-					glVertex2f(-1.5,0.0);
-					glVertex2f(-1.5,1.0);
-				glEnd();
-				glTranslatef(-3.75,0.0,0.0);
-				glBegin(GL_POLYGON);
-					glVertex2f(1.5,1.0);
-					glVertex2f(1.5,0.0);
-					glVertex2f(-1.5,0.0);
-					glVertex2f(-1.5,1.0);
-				glEnd();
-			glPopMatrix();
-			glPushMatrix();
-				glTranslatef(1.75,0.0,0.0);
-				glBegin(GL_POLYGON);
-					glVertex2f(1.5,1.0);
-					glVertex2f(1.5,0.0);
-					glVertex2f(-1.5,0.0);
-					glVertex2f(-1.5,1.0);
-				glEnd();
-				glTranslatef(3.75,0.0,0.0);
-				glBegin(GL_POLYGON);
-					glVertex2f(1.5,1.0);
-					glVertex2f(1.5,0.0);
-					glVertex2f(-1.5,0.0);
-					glVertex2f(-1.5,1.0);
-				glEnd();
-			glPopMatrix();
-		glPopMatrix();
-	glPopMatrix();
+			glTranslatef(
+				this->bloques[i].second.first,
+				this->bloques[i].second.second,
+				0.0);
+				drawBar();
+			glPopMatrix();	
+		}
 }
 
 void Enemigo::draw(){
@@ -132,3 +75,4 @@ bool Enemigo::collideLeft(int xa, int ya,int xb, int yb){
 
 	return interx<=xo;
 }
+
