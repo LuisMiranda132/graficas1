@@ -1,5 +1,7 @@
 #include"util.h"
-
+//#####################################################################
+//###########################  BARRERA  ###############################
+//#####################################################################
 void Barrera::draw(){
 	glPushMatrix();
 		glTranslatef(this->x,this->y,0.0);
@@ -78,6 +80,10 @@ void Barrera::draw(){
 	glPopMatrix();
 }
 
+//#####################################################################
+//###########################  ENEMIGO  ###############################
+//#####################################################################
+
 void Enemigo::draw(){
 	glPushMatrix();
 	glTranslatef(this->x,this->y,0.0);
@@ -131,4 +137,37 @@ bool Enemigo::collideLeft(int xa, int ya,int xb, int yb){
 	intery = (yod - (mod * yab)/mab)/(1-mod/mab);
 
 	return interx<=xo;
+}
+
+//#####################################################################
+//###########################  ALIADO  ################################
+//#####################################################################
+
+const float Aliado::ALLY_WIDTH = 4.0f;
+const float Aliado::ALLY_HEIGHT = 2.0f;
+
+void Aliado::draw(){
+	float hw = ALLY_WIDTH/2.0f;
+	float hh = ALLY_HEIGHT/2.0f;
+	glPushMatrix();
+		glTranslatef(this->x,this->y,0.0f);
+		glBegin(GL_POLYGON);
+			glVertex2f(hw,hh);
+			glVertex2f(-hw,hh);
+			glVertex2f(-hw,-hh);
+			glVertex2f(hw,-hh);
+		glEnd();
+	glPopMatrix();
+}
+
+void Aliado::update(float wallX){
+	this->x+=this->vel;
+	this->collideWall(wallX);
+}
+
+void Aliado::collideWall(float wallX){
+	if(this->x >= wallX)
+		this->x = wallX;
+	else if(this->x <= -wallX)
+		this->x = -wallX;
 }

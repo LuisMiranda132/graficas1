@@ -12,6 +12,10 @@ using namespace std;
 #define DEF_floorGridXSteps	40.0f
 #define DEF_floorGridZSteps	40.0f
 
+#define WALL_WIDTH 25.0f
+#define WALL_HEIGHT 30.0f
+#define ALLY_OFFSET 3.0f
+
 
 #define numEne 6
 #define niveles 5
@@ -20,6 +24,8 @@ int delay = 100;
 
 vector<Enemigo> enemigos;
 vector<Barrera> barreras;
+vector<Bala> balas;
+Aliado ally;
 
 void collideWorld(){
 
@@ -60,6 +66,10 @@ void cargarBarreras(){
 	barreras.push_back(Barrera::Barrera(-16.0,-16.0));
 	barreras.push_back(Barrera::Barrera(0.0,-16.0));
 	barreras.push_back(Barrera::Barrera(16.0,-16.0));
+}
+
+void cargarAliado(){
+	ally = Aliado::Aliado(&enemigos,&balas,-WALL_WIDTH+Aliado::ALLY_WIDTH/2.0f+2.0f,-WALL_HEIGHT+Aliado::ALLY_HEIGHT/2.0f + ALLY_OFFSET);
 }
 
 void updateEnemigos(){
@@ -194,98 +204,14 @@ void render(){
 	glEnable(GL_PROGRAM_POINT_SIZE);
 	glPointSize(5.0);
 	glBegin(GL_LINE_LOOP);
-		glVertex2f(25.0,30.0);
-		glVertex2f(-25.0,30.0);
-		glVertex2f(-25.0,-30.0);
-		glVertex2f(25.0,-30.0);
+		glVertex2f(WALL_WIDTH,WALL_HEIGHT);
+		glVertex2f(-WALL_WIDTH,WALL_HEIGHT);
+		glVertex2f(-WALL_WIDTH,-WALL_HEIGHT);
+		glVertex2f(WALL_WIDTH,-WALL_HEIGHT);
 	glEnd();
 
-//	glBegin(GL_LINE_LOOP);
-//		glVertex2f(-25.0,-16.0);
-//		glVertex2f(25.0,-16.0);
-//	glEnd();
-
-/*
-	glPushMatrix();
-		glTranslatef(-2.5,0.0,0.0);
-		glBegin(GL_POLYGON);
-			glVertex2f(2.0,1.0);
-			glVertex2f(2.0,0.0);
-			glVertex2f(-2.0,0.0);
-			glVertex2f(-2.0,1.0);
-		glEnd();
-	glPopMatrix();
-	glPushMatrix();
-		glTranslatef(2.5,0.0,0.0);
-		glBegin(GL_POLYGON);
-			glVertex2f(2.0,1.0);
-			glVertex2f(2.0,0.0);
-			glVertex2f(-2.0,0.0);
-			glVertex2f(-2.0,1.0);
-		glEnd();
-	glPopMatrix();
-	glPushMatrix();
-		glTranslatef(0.0,-1.5,0.0);
-		glPushMatrix();
-			glTranslatef(4.5,0.0,0.0);
-			glBegin(GL_POLYGON);
-				glVertex2f(2.0,1.0);
-				glVertex2f(2.0,0.0);
-				glVertex2f(-2.0,0.0);
-				glVertex2f(-2.0,1.0);
-			glEnd();
-		glPopMatrix();
-		glPushMatrix();
-			glTranslatef(-4.5,0.0,0.0);
-			glBegin(GL_POLYGON);
-				glVertex2f(2.0,1.0);
-				glVertex2f(2.0,0.0);
-				glVertex2f(-2.0,0.0);
-				glVertex2f(-2.0,1.0);
-			glEnd();
-		glPopMatrix();
-		glTranslatef(0.0,-1.5,0.0);
-		glPushMatrix();
-		glTranslatef(-2.5,0.0,0.0);
-		glBegin(GL_POLYGON);
-			glVertex2f(2.0,1.0);
-			glVertex2f(2.0,0.0);
-			glVertex2f(-2.0,0.0);
-			glVertex2f(-2.0,1.0);
-		glEnd();
-		glTranslatef(-4.5,0.0,0.0);
-		glBegin(GL_POLYGON);
-			glVertex2f(2.0,1.0);
-			glVertex2f(2.0,0.0);
-			glVertex2f(-2.0,0.0);
-			glVertex2f(-2.0,1.0);
-		glEnd();
-		glPopMatrix();
-		glPushMatrix();
-			glTranslatef(2.5,0.0,0.0);
-			glBegin(GL_POLYGON);
-				glVertex2f(2.0,1.0);
-				glVertex2f(2.0,0.0);
-				glVertex2f(-2.0,0.0);
-				glVertex2f(-2.0,1.0);
-			glEnd();
-			glTranslatef(4.5,0.0,0.0);
-			glBegin(GL_POLYGON);
-				glVertex2f(2.0,1.0);
-				glVertex2f(2.0,0.0);
-				glVertex2f(-2.0,0.0);
-				glVertex2f(-2.0,1.0);
-			glEnd();
-		glPopMatrix();
-	glPopMatrix();
-*/
-
+	ally.draw();
 	drawBarreras();
-
-//	drawBarrera(-16.0,-16.0);
-//	drawBarrera(0,-16.0);
-//	drawBarrera(16.0,-16.0);
-	
 	drawEnemigos();
 	glutSwapBuffers();
 }
@@ -293,6 +219,7 @@ void render(){
 void update(int value){
 	updateEnemigos();
 	collideWorld();
+	ally.update(WALL_WIDTH);
 	glutPostRedisplay();	
 	glutTimerFunc(delay,update,0);
 }
@@ -306,6 +233,7 @@ int main (int argc, char** argv) {
 	glutInitWindowSize(800,400);
 
 	glutCreateWindow("Juego Opengl");
+	cargarAliado();
 	cargarEnemigos();
 	cargarBarreras();
 
