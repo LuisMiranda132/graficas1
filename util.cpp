@@ -99,7 +99,7 @@ bool Enemigo::collideRight(int xa, int ya,int xb, int yb){
 	int xo = x + 2, yo = y+1,
 		xd = x - 2, yd = y+1;
 
-	if(xa=xb)
+	if(xa==xb)
 		return xo>=xa;
 
 	mod = (yo-yd)/(xo-xd);
@@ -118,7 +118,7 @@ bool Enemigo::collideLeft(int xa, int ya,int xb, int yb){
 	float mod,mab,yod,yab, interx, intery;
 	int xo = x - 2, yo = y+1,
 		xd = x - 2, yd = y+1;
-	if(xa=xb)
+	if(xa==xb)
 		return xo<=xa;
 
 	mod = (yo-yd)/(xo-xd);
