@@ -11,11 +11,11 @@ class Enemigo{
 public:	
 	float vel;
 	float x, y;
-	bool especial;
+	bool especial,toRemove;
 	void draw();
 	void update();
 	Enemigo(float xi=0,float yi=0,bool e=0)
-		:x(xi),y(yi),vel(0.5),especial(e){};
+		:x(xi),y(yi),vel(0.5),especial(e),toRemove(false){};
 	bool collideRight(float xa, float ya,float xb, float yb);
 	bool collideLeft(float xa, float ya,float xb, float yb);
 	bool collideUp(float xa, float ya,float xb, float yb);
@@ -86,10 +86,12 @@ public:
 	float x, y;
 	float radius;
 	float vel;
+	bool toRemove;
 	void draw();
 	bool collideWall(float wallY);
+	bool collideEnemy(Enemigo en);
 	void update();
-	Bala(float xi=0,float yi=0,float r=0):x(xi),y(yi),radius(r),vel(0.5f){};
+	Bala(float xi=0,float yi=0,float r=0):x(xi),y(yi),radius(r),vel(0.5f),toRemove(false){};
 };
 
 class Aliado{
@@ -113,7 +115,7 @@ public:
 	void onKeyRelease(unsigned char key);
 	void onSpecialRelease(int code);
 	void collideWall(float wallX);
-	void collideEnemy(Enemigo en);
+	bool collideEnemy(Enemigo en);
 	void collideBullets();
 	Aliado(float xi=0,float yi=0,float w=1.0f, float h=1.0f):
 		x(xi),y(yi),width(w),height(h),vel(0.0f),shot(false){};

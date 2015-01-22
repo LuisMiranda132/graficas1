@@ -3,6 +3,7 @@
 #include <iostream>
 #include <vector>
 #include <random>
+#include <algorithm>
 #include "util.h"
 
 using namespace std;
@@ -28,34 +29,36 @@ uniform_int_distribution<int> dist(0,1);
 
 int delay = 50;
 
-vector< vector<Enemigo> > enemigos;
+vector<Enemigo> enemigos;
 vector<Barrera> barreras;
 vector<Bala> balasEnemigas;
 vector<Bala> balasAliadas;
 Aliado ally;
 bool play = true;
 
+bool toRemoveEnemy(Enemigo &en){
+	return en.toRemove;
+}
+
+bool toRemoveBala(Bala &bal){
+	return bal.toRemove;
+}
+
 void collideWorld(){
-	int welp;
-	for(int j=0; j<niveles; j++){
-		welp = enemigos[j].size()-1;
-		if(enemigos[j][welp].collideRight(25.0,30.0,25.0,-30.0)){
-			for(int k=0; k<niveles; k++){
-				for(int i =0; i<enemigos[k].size(); i++){
-					enemigos[k][i].vel=-(enemigos[k][i].vel*1.05);
-					enemigos[k][i].y-=2.5;
-				}	
+	for(int j=0; j<enemigos.size(); j++){
+		if(enemigos[j].collideRight(25.0,30.0,25.0,-30.0)){
+			for(int i =0; i<enemigos.size(); i++){
+				enemigos[i].vel*=-1.05;
+				enemigos[i].y-=2.5;
 			}
 			break;
-		}else if(enemigos[j][0].collideLeft(-25.0,30.0,-25.0,-30.0)){
-			for(int k=0; k<niveles; k++){
-				for(int i =0; i<enemigos[k].size(); i++){
-					enemigos[k][i].vel=-(enemigos[k][i].vel*1.05);
-					enemigos[k][i].y-=2.5;
-				}	
+		}else if(enemigos[j].collideLeft(-25.0,30.0,-25.0,-30.0)){
+			for(int i =0; i<enemigos.size(); i++){
+				enemigos[i].vel*=-1.05;
+				enemigos[i].y-=2.5;
 			}
 			break;
-		}else if(enemigos[niveles-1][0].collideDown(25.0,-30.0,-25.0,-30.0)){
+		}else if(enemigos[j].collideDown(25.0,-30.0,-25.0,-30.0)){
 				play = false;	
 		}
 	}
@@ -86,16 +89,15 @@ void collideBarrera(){
 void cargarEnemigos(){
 	int dummy,mor=morados;
 	for(int j=0; j<niveles; j++){
-		enemigos.push_back(vector<Enemigo>::vector());
 		for(int i =0; i<numEne;i++){
 			dummy=dist(eng);
 			if(mor&&dummy){
-				enemigos[j].push_back(
+				enemigos.push_back(
 					Enemigo::Enemigo(
 					-20.0+6.0*i+(j % 2)*3,24-5*j,dummy));
 				mor--;
 			}else{
-				enemigos[j].push_back(
+				enemigos.push_back(
 					Enemigo::Enemigo(
 					-20.0+6.0*i+(j % 2)*3,24-5*j));
 			}
@@ -114,9 +116,8 @@ void cargarAliado(){
 }
 
 void updateEnemigos(){
-	for(int j=0; j<niveles; j++)
-		for(int i =0; i<numEne;i++)
-			enemigos[j][i].update();
+	for(int j=0; j<enemigos.size(); j++)
+		enemigos[j].update();
 }
 
 void updateBalas(float wallY){
@@ -137,9 +138,8 @@ void updateBalas(float wallY){
 }
 
 void drawEnemigos(){
-	for(int j=0; j<niveles; j++)
-		for(int i =0; i<numEne;i++)
-			enemigos[j][i].draw();
+	for(int j=0; j<enemigos.size(); j++)
+		enemigos[j].draw();
 }
 
 void drawBarreras(){
@@ -292,11 +292,25 @@ void update(int value){
 	updateBalas(WALL_HEIGHT);
 	ally.update(WALL_WIDTH);
 	updateEnemigos();
-	for(int k=0; k<enemigos.size(); k++){
-		for(int i =0; i<enemigos[k].size(); i++){
-			ally.collideEnemy(enemigos[k][i]);
+	for(int k=0; k<enemigos.size(); ++k){
+		if(ally.collideEnemy(enemigos[k])){
+			play = false;
+			break;
 		}
+		for(int j=0;j<balasAliadas.size();++j){
+			Bala* b = &(balasAliadas[j]);
+			if(b->collideEnemy(enemigos[k])){
+				if(enemigos[k].especial){
+					enemigos[k].especial = false;
+				}else{
+					enemigos[k].toRemove = true;
+				}
+				balasAliadas[j].toRemove = true;
+			}
+		}
+		balasAliadas.erase(remove_if(balasAliadas.begin(),balasAliadas.end(),toRemoveBala),balasAliadas.end());
 	}
+	enemigos.erase(remove_if(enemigos.begin(),enemigos.end(),toRemoveEnemy),enemigos.end());
 	collideBarrera();
 	glutPostRedisplay();	
 	if(play)

@@ -112,7 +112,7 @@ bool Enemigo::collideRight(float xa, float ya, float xb, float yb){
 		return (xo >= xa) && 4>abs(xo-xa) ? 
 			abs(yo-ya)<abs(yo-yd) : FALSE;
 	}else{
-		cout<<xo<<" >= "<<xa<<endl;
+		//cout<<xo<<" >= "<<xa<<endl;
 		return (xo >= xa) ? abs(yo-ya)<abs(yb-ya) : FALSE;
 	}
 /*	mod = (yo-yd)/(xo-xd);
@@ -233,7 +233,7 @@ void Aliado::collideWall(float wallX){
 		this->x = -wallX+halfWidth;
 }
 
-void Aliado::collideEnemy(Enemigo en){
+bool Aliado::collideEnemy(Enemigo en){
 	float enemyLeft = en.x - 2.0f;
 	float enemyRight = en.x + 2.0f;
 	float enemyUp = en.y + 1.0f;
@@ -247,7 +247,8 @@ void Aliado::collideEnemy(Enemigo en){
 	float myDown = this->y - halfHeight;
 
 	if(myLeft <= enemyRight && myRight >= enemyLeft && myUp >= enemyDown && myDown <= enemyUp)
-		cout << "Collided with enemy" << endl;
+		return true;
+	return false;
 }
 
 //#####################################################################
@@ -270,4 +271,20 @@ bool Bala::collideWall(float wallY){
 
 void Bala::update(){
 	this->y += this->vel;
+}
+
+bool Bala::collideEnemy(Enemigo en){
+	float enemyLeft = en.x - 2.0f;
+	float enemyRight = en.x + 2.0f;
+	float enemyUp = en.y + 1.0f;
+	float enemyDown = en.y - 1.0f;
+
+	float myLeft = this->x - this->radius;
+	float myRight = this->x + this->radius;
+	float myUp = this->y + this->radius;
+	float myDown = this->y - this->radius;
+
+	if(myLeft <= enemyRight && myRight >= enemyLeft && myUp >= enemyDown && myDown <= enemyUp)
+		return true;
+	return false;
 }
