@@ -24,7 +24,8 @@ int delay = 100;
 
 vector<Enemigo> enemigos;
 vector<Barrera> barreras;
-vector<Bala> balas;
+vector<Bala> balasEnemigas;
+vector<Bala> balasAliadas;
 Aliado ally;
 
 void collideWorld(){
@@ -69,12 +70,29 @@ void cargarBarreras(){
 }
 
 void cargarAliado(){
-	ally = Aliado::Aliado(&enemigos,&balas,-WALL_WIDTH+Aliado::ALLY_WIDTH/2.0f+2.0f,-WALL_HEIGHT+Aliado::ALLY_HEIGHT/2.0f + ALLY_OFFSET);
+	ally = Aliado::Aliado(-WALL_WIDTH+Aliado::ALLY_WIDTH/2.0f+2.0f,-WALL_HEIGHT+Aliado::ALLY_HEIGHT/2.0f + ALLY_OFFSET,Aliado::ALLY_WIDTH,Aliado::ALLY_HEIGHT);
 }
 
 void updateEnemigos(){
 	for(int i =0; i<numEne*niveles;i++)
 		enemigos[i].update();
+}
+
+void updateBalas(float wallY){
+	for(int i=0;i<balasEnemigas.size();++i){
+		balasEnemigas[i].update();
+		if(balasEnemigas[i].collideWall(wallY)){
+			balasEnemigas.erase(balasEnemigas.begin()+i);
+			--i;
+		}
+	}
+	for(int i=0;i<balasAliadas.size();++i){
+		balasAliadas[i].update();
+		if(balasAliadas[i].collideWall(wallY)){
+			balasAliadas.erase(balasAliadas.begin()+i);
+			--i;
+		}
+	}
 }
 
 void drawEnemigos(){
@@ -85,6 +103,15 @@ void drawEnemigos(){
 void drawBarreras(){
 	for(int i =0;i<3;i++)
 		barreras[i].draw();
+}
+
+void drawBalas(){
+	for(int i=0;i<balasEnemigas.size();++i){
+		balasEnemigas[i].draw();
+	}
+	for(int i=0;i<balasAliadas.size();++i){
+		balasAliadas[i].draw();
+	}
 }
 
 void changeViewport(int w, int h) {
@@ -212,6 +239,7 @@ void render(){
 
 	ally.draw();
 	drawBarreras();
+	drawBalas();
 	drawEnemigos();
 	glutSwapBuffers();
 }
@@ -219,9 +247,43 @@ void render(){
 void update(int value){
 	updateEnemigos();
 	collideWorld();
+	updateBalas(WALL_HEIGHT);
 	ally.update(WALL_WIDTH);
+	for(int i=0;i<enemigos.size();++i){
+		ally.collideEnemy(enemigos[i]);
+	}
 	glutPostRedisplay();	
 	glutTimerFunc(delay,update,0);
+}
+
+void keyPressed(unsigned char key,int x,int y){
+	switch(key){
+		case 32: if(!ally.shot) balasAliadas.push_back(ally.shoot()); break;
+		default: cout << (int) key << endl;break;
+	}
+}
+
+void keyReleased(unsigned char key,int x,int y){
+	switch(key){
+		case 32: ally.shot = false;break;
+		default: break;
+	}
+}
+
+void specialPressed(int key,int x, int y){
+	switch(key){
+		case GLUT_KEY_LEFT: ally.onSpecialPress(Aliado::ALLY_LEFT);break;
+		case GLUT_KEY_RIGHT: ally.onSpecialPress(Aliado::ALLY_RIGHT);break;
+		default: break;
+	}
+}
+
+void specialReleased(int key,int x, int y){
+	switch(key){
+		case GLUT_KEY_LEFT: ally.onSpecialRelease(Aliado::ALLY_LEFT);break;
+		case GLUT_KEY_RIGHT: ally.onSpecialRelease(Aliado::ALLY_RIGHT);break;
+		default: break;
+	}
 }
 
 int main (int argc, char** argv) {
@@ -239,7 +301,11 @@ int main (int argc, char** argv) {
 
 	glutReshapeFunc(changeViewport);
 	glutDisplayFunc(render);
-//	glutTimerFunc(delay,update,0);
+	glutTimerFunc(delay,update,0);
+	glutKeyboardFunc(keyPressed);
+	glutKeyboardUpFunc(keyReleased);
+	glutSpecialFunc(specialPressed);
+	glutSpecialUpFunc(specialReleased);
 	
 	GLenum err = glewInit();
 	if (GLEW_OK != err) {

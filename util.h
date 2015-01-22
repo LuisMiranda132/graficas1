@@ -32,11 +32,15 @@ void drawBarrera(int x, int y);
 class Bala{
 
 public:
+	static const float BULLET_RADIUS;
+
 	float x, y;
+	float radius;
 	float vel;
 	void draw();
+	bool collideWall(float wallY);
 	void update();
-	Bala(float xi=0,float yi=0):x(xi),y(yi),vel(0.5f){};
+	Bala(float xi=0,float yi=0,float r=0):x(xi),y(yi),radius(r),vel(0.5f){};
 };
 
 class Aliado{
@@ -44,18 +48,24 @@ class Aliado{
 public:
 	static const float ALLY_WIDTH;
 	static const float ALLY_HEIGHT;
+	static const float ALLY_MOVE_SPEED;
+	static const int ALLY_LEFT;
+	static const int ALLY_RIGHT;
 
 	float x, y;
+	float width,height;
+	bool shot;
 	float vel;
-	vector<Enemigo>* enemyList;
-	vector<Bala>* bulletList;
 	void draw();
 	void update(float wallX);
+	Bala shoot();
 	void onKeyPress(unsigned char key);
+	void onSpecialPress(int code);
 	void onKeyRelease(unsigned char key);
+	void onSpecialRelease(int code);
 	void collideWall(float wallX);
-	bool collideEnemy();
-	bool collideBullets();
-	Aliado(vector<Enemigo>* e, vector<Bala>* b,float xi=0,float yi=0):x(xi),y(yi),vel(1.0f),enemyList(e), bulletList(b){};
-	Aliado(){};
+	void collideEnemy(Enemigo en);
+	void collideBullets();
+	Aliado(float xi=0,float yi=0,float w=1.0f, float h=1.0f):
+		x(xi),y(yi),width(w),height(h),vel(0.0f),shot(false){};
 };
