@@ -14,9 +14,9 @@ using namespace std;
 
 
 #define numEne 6
-#define niveles 5
+#define niveles 1
 
-int delay = 100;
+int delay = 10;
 
 vector<Enemigo> enemigos;
 vector<Barrera> barreras;
@@ -24,14 +24,14 @@ vector<Barrera> barreras;
 void collideWorld(){
 
 	for(int i =0; i<numEne*niveles;i++)
-		if(enemigos[i].collideRight(25.0,15.0,25.0,-15.0)){
+		if(enemigos[i].collideRight(25.0,30.0,25.0,-30.0)){
 			for(int j =0; j<numEne*niveles;j++){
-				enemigos[j].vel=-(enemigos[j].vel*1.5);
+				enemigos[j].vel=-(enemigos[j].vel*1.05);
 				enemigos[j].y-=2.5;
 				
 			}
 			break;
-		}else if(enemigos[i].collideLeft(-25.0,15.0,-25.0,-15.0)){
+		}else if(enemigos[i].collideLeft(-25.0,30.0,-25.0,-30.0)){
 			for(int j =0; j<numEne*niveles;j++){
 				enemigos[j].vel=-(enemigos[j].vel*1.5);
 				enemigos[j].y-=2.5;
@@ -48,6 +48,12 @@ void collideWorld(){
 		enemigos[0].y-=2;
 	}
 */
+}
+
+void collideBarrera(){
+	for(int i =0; i<numEne*niveles;i++){
+		barreras[0].collide(enemigos[i]);
+	}
 }
 
 void cargarEnemigos(){
@@ -311,7 +317,7 @@ int main (int argc, char** argv) {
 
 	glutReshapeFunc(changeViewport);
 	glutDisplayFunc(render);
-//	glutTimerFunc(delay,update,0);
+	glutTimerFunc(delay,update,0);
 	
 	GLenum err = glewInit();
 	if (GLEW_OK != err) {

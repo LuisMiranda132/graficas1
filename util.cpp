@@ -1,4 +1,24 @@
 #include"util.h"
+#define dist(x1,y1,x2,y2) sqrt( pow(x1-x2,2) + pow(y1-y2,2))
+
+bool elcollide(float xo, float yo, float xd, float yd,
+			 float xa, float ya, float xb, float yb){
+
+	float mod,mab,yod,yab, interx, intery;
+	if(xa==xb)
+		return xo>=xa;
+
+	mod = (yo-yd)/(xo-xd);
+	mab = (ya-yb)/(xa-xb);
+
+	yod = yo-xo*mod;
+	yab = ya-xa*mod;
+
+	interx = (yod-yab)/(mod - mab);
+	intery = (yod - (mod * yab)/mab)/(1-mod/mab);
+
+	return interx<=xo;
+}
 
 void drawBar(){
 	glBegin(GL_POLYGON);
@@ -21,6 +41,18 @@ void Barrera::draw(){
 		}
 }
 
+void Barrera::collide(Enemigo enemy){
+//	for(int i=0; i<this->bloques.size();i++){
+		cout<<
+			elcollide(enemy.x + 2, enemy.y + 1,
+				enemy.x - 2, enemy.y + 1,
+				this->bloques[0].second.first + 1.5,
+				this->bloques[0].second.second + 1.0,
+				this->bloques[0].second.first + 1.5,
+				this->bloques[0].second.second)
+			<< endl;
+//	}
+}
 void Enemigo::draw(){
 	glPushMatrix();
 	glTranslatef(this->x,this->y,0.0);
@@ -37,15 +69,17 @@ void Enemigo::update(){
 	this->x+=this->vel;
 }
 
-bool Enemigo::collideRight(int xa, int ya,int xb, int yb){
-	float mod,mab,yod,yab, interx, intery;
-	int xo = x + 2, yo = y+1,
-		xd = x - 2, yd = y+1;
+bool Enemigo::collideRight(float xa, float ya, float xb, float yb){
+//	float mod,mab,yod,yab, interx, intery;
+	float xo = x + 2, yo = y + 1,
+		xd = x + 2, yd = y - 1;
 
-	if(xa==xb)
-		return xo>=xa;
+	if(xa==xb){
+		cout << xo <<","<< yo <<"\t"<<xa<<","<<ya<<endl;
+		return (xo >= xa) ? abs(yo-ya)<abs(yb-ya) : FALSE;
+	}
 
-	mod = (yo-yd)/(xo-xd);
+/*	mod = (yo-yd)/(xo-xd);
 	mab = (ya-yb)/(xa-xb);
 
 	yod = yo-xo*mod;
@@ -55,16 +89,19 @@ bool Enemigo::collideRight(int xa, int ya,int xb, int yb){
 	intery = (yod - (mod * yab)/mab)/(1-mod/mab);
 
 	return interx<=xo;
+*/
 }
 
-bool Enemigo::collideLeft(int xa, int ya,int xb, int yb){
-	float mod,mab,yod,yab, interx, intery;
-	int xo = x - 2, yo = y+1,
-		xd = x - 2, yd = y+1;
-	if(xa==xb)
-		return xo<=xa;
+bool Enemigo::collideLeft(float xa, float ya,float xb, float yb){
+//	float mod,mab,yod,yab, interx, intery;
+	float xo = x - 2, yo = y + 1,
+		xd = x - 2, yd = y - 1;
 
-	mod = (yo-yd)/(xo-xd);
+	if(xa==xb){
+		return (xo <= xa) ? abs(yo-ya)<abs(yb-ya) : FALSE;
+	}
+
+/*	mod = (yo-yd)/(xo-xd);
 	mab = (ya-yb)/(xa-xb);
 
 	yod = yo-xo*mod;
@@ -74,5 +111,5 @@ bool Enemigo::collideLeft(int xa, int ya,int xb, int yb){
 	intery = (yod - (mod * yab)/mab)/(1-mod/mab);
 
 	return interx<=xo;
+*/
 }
-
