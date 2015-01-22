@@ -45,37 +45,19 @@ bool toRemoveBala(Bala &bal){
 }
 
 void collideWorld(){
+	bool down = false;
 	for(int j=0; j<enemigos.size(); j++){
-		if(enemigos[j].collideRight(25.0,30.0,25.0,-30.0)){
-			for(int i =0; i<enemigos.size(); i++){
-				enemigos[i].vel*=-1.05;
-				enemigos[i].y-=2.5;
-			}
-			break;
-		}else if(enemigos[j].collideLeft(-25.0,30.0,-25.0,-30.0)){
-			for(int i =0; i<enemigos.size(); i++){
-				enemigos[i].vel*=-1.05;
-				enemigos[i].y-=2.5;
-			}
-			break;
-		}else if(enemigos[j].collideDown(25.0,-30.0,-25.0,-30.0)){
-				play = false;	
+		if(enemigos[j].collideWall(WALL_WIDTH)){
+			down = true;
+		}else if(ally.collideEnemy(enemigos[j])){
+			play = false;	
 		}
 	}
-		/*
-/*		}else if(enemigos[i].collideDown(25.0,-30.0,-25.0,-30.0)){
-			for(int j =0; j<numEne*niveles;j++){
-			}
+	if(down){
+		for(int i=0;i<enemigos.size();++i){
+			enemigos[i].goDown();
 		}
-
-/*	if(enemigos[0].collideRight(20.0,15.0,20.0,-15.0)){
-		enemigos[0].vel=-enemigos[0].vel*2;
-		enemigos[0].y-=2;
-	}else if(enemigos[0].collideLeft(-20.0,15.0,-20.0,-15.0)){
-		enemigos[0].vel=-enemigos[0].vel*2;
-		enemigos[0].y-=2;
 	}
-*/
 }
 
 void collideBarrera(){
@@ -293,10 +275,6 @@ void update(int value){
 	ally.update(WALL_WIDTH);
 	updateEnemigos();
 	for(int k=0; k<enemigos.size(); ++k){
-		if(ally.collideEnemy(enemigos[k])){
-			play = false;
-			break;
-		}
 		for(int j=0;j<balasAliadas.size();++j){
 			Bala* b = &(balasAliadas[j]);
 			if(b->collideEnemy(enemigos[k])){

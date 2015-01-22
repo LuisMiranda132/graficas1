@@ -5,6 +5,17 @@
 #include <cmath>
 using namespace std;
 
+class Bloque{
+
+public:
+	float x,y;
+	float width;
+	float height;
+
+	void draw();
+	Bloque(float xi=0,float yi=0,float w=3.0f,float h=0.5f):x(xi),y(yi),width(w),height(h){}
+};
+
 class Enemigo{
 	static int id;
 
@@ -16,6 +27,9 @@ public:
 	void update();
 	Enemigo(float xi=0,float yi=0,bool e=0)
 		:x(xi),y(yi),vel(0.5),especial(e),toRemove(false){};
+	bool collideWall(float wallX);
+	void goDown();
+	bool collideBlock(Bloque b);
 	bool collideRight(float xa, float ya,float xb, float yb);
 	bool collideLeft(float xa, float ya,float xb, float yb);
 	bool collideUp(float xa, float ya,float xb, float yb);
@@ -26,40 +40,28 @@ class Barrera{
 
 public:
 	float x, y;
-	vector <pair< bool , pair<float, float> >> bloques;
+	vector <pair< bool , Bloque>> bloques;
 	
 	void draw();
 	Barrera(float xi=0,float yi=0):x(xi),y(yi){
 		bloques.push_back(
-			pair< bool , pair<float, float> >::pair(
-			TRUE,
-			pair< float, float >::pair(xi-1.75,yi)
-			));
+			pair< bool , Bloque>::pair(
+			TRUE,Bloque::Bloque(xi-1.75,yi)));
 		bloques.push_back(
-			pair< bool , pair<float, float> >::pair(
-			TRUE,
-			pair< float, float >::pair(xi+1.75,yi)
-			));
+			pair< bool , Bloque>::pair(
+			TRUE,Bloque(xi+1.75,yi)));
 		bloques.push_back(
-			pair< bool , pair<float, float> >::pair(
-			TRUE,
-			pair< float, float >::pair(xi-3.5,yi-1.5)
-			));
+			pair< bool , Bloque>::pair(
+			TRUE,Bloque(xi-3.5,yi-1.5)));
 		bloques.push_back(
-			pair< bool , pair<float, float> >::pair(
-			TRUE,
-			pair< float, float >::pair(xi+3.5,yi-1.5)
-			));
+			pair< bool , Bloque>::pair(
+			TRUE,Bloque(xi+3.5,yi-1.5)));
 		bloques.push_back(
-			pair< bool , pair<float, float> >::pair(
-			TRUE,
-			pair< float, float >::pair(xi-1.75,yi-3.0)
-			));
+			pair< bool ,Bloque>::pair(
+			TRUE,Bloque(xi-1.75,yi-3.0)));
 		bloques.push_back(
-			pair< bool , pair<float, float> >::pair(
-			TRUE,
-			pair< float, float >::pair(xi+1.75,yi-3.0)
-			));
+			pair< bool , Bloque>::pair(
+			TRUE, Bloque(xi+1.75,yi-3.0)));
 /*		bloques.push_back(
 			pair< bool , pair<float, float> >::pair(
 			TRUE,

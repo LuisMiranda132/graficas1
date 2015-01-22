@@ -36,6 +36,19 @@ void drawBar(){
 }
 
 //#####################################################################
+//###########################  BLOQUE  ################################
+//#####################################################################
+
+void Bloque::draw(){
+	glBegin(GL_POLYGON);
+		glVertex2f(1.5,1.0);
+		glVertex2f(1.5,0.0);
+		glVertex2f(-1.5,0.0);
+		glVertex2f(-1.5,1.0);
+	glEnd();
+}
+
+//#####################################################################
 //###########################  BARRERA  ###############################
 //#####################################################################
 void Barrera::draw(){
@@ -45,10 +58,10 @@ void Barrera::draw(){
 				glPushMatrix();
 				glColor3f(i*0.1,i*0.1,i*0.1);
 				glTranslatef(
-					this->bloques[i].second.first,
-					this->bloques[i].second.second,
+					this->bloques[i].second.x,
+					this->bloques[i].second.y,
 					0.0);
-					drawBar();
+					bloques[i].second.draw();
 				glPopMatrix();	
 			}	
 		}
@@ -56,7 +69,7 @@ void Barrera::draw(){
 
 
 void Barrera::collide(Enemigo enemy){
-	for(int i=0; i<this->bloques.size();i++){
+	/*for(int i=0; i<this->bloques.size();i++){
 		if( enemy.collideRight(
 				this->bloques[i].second.first-1.5,
 				this->bloques[i].second.second+1.0,
@@ -74,7 +87,7 @@ void Barrera::collide(Enemigo enemy){
 				this->bloques[i].second.second)){
 			bloques[i].first = false;
 		}
-	}
+	}*/
 }
 
 //#####################################################################
@@ -100,6 +113,18 @@ void Enemigo::draw(){
 
 void Enemigo::update(){
 	this->x+=this->vel;
+}
+
+bool Enemigo::collideWall(float wallX){
+	if(this->x + 2.0f >= wallX || this->x - 2.0f <= -wallX){
+		return true;
+	}
+	return false;
+}
+
+void Enemigo::goDown(){
+	this->vel*=-1.05;
+	this->y-=2.5;
 }
 
 bool Enemigo::collideRight(float xa, float ya, float xb, float yb){
