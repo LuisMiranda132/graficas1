@@ -2,6 +2,7 @@
 #include <GL\freeglut.h>
 #include <iostream>
 #include <vector>
+#include <random>
 #include "util.h"
 
 using namespace std;
@@ -16,35 +17,52 @@ using namespace std;
 #define WALL_HEIGHT 30.0f
 #define ALLY_OFFSET 3.0f
 
-
+#define morados 2
 #define numEne 6
-#define niveles 5
+#define niveles 2
 
-int delay = 100;
+random_device rd;
+mt19937 eng(rd());
+uniform_int_distribution<int> dist(0,1);
 
-vector<Enemigo> enemigos;
+
+int delay = 50;
+
+vector< vector<Enemigo> > enemigos;
 vector<Barrera> barreras;
 vector<Bala> balasEnemigas;
 vector<Bala> balasAliadas;
 Aliado ally;
+bool play = true;
 
 void collideWorld(){
-
-	for(int i =0; i<numEne*niveles;i++)
-		if(enemigos[i].collideRight(25.0,15.0,25.0,-15.0)){
-			for(int j =0; j<numEne*niveles;j++){
-				enemigos[j].vel=-(enemigos[j].vel*1.5);
-				enemigos[j].y-=2.5;
-				
+	int welp;
+	for(int j=0; j<niveles; j++){
+		welp = enemigos[j].size()-1;
+		if(enemigos[j][welp].collideRight(25.0,30.0,25.0,-30.0)){
+			for(int k=0; k<niveles; k++){
+				for(int i =0; i<enemigos[k].size(); i++){
+					enemigos[k][i].vel=-(enemigos[k][i].vel*1.05);
+					enemigos[k][i].y-=2.5;
+				}	
 			}
 			break;
-		}else if(enemigos[i].collideLeft(-25.0,15.0,-25.0,-15.0)){
-			for(int j =0; j<numEne*niveles;j++){
-				enemigos[j].vel=-(enemigos[j].vel*1.5);
-				enemigos[j].y-=2.5;
-				
+		}else if(enemigos[j][0].collideLeft(-25.0,30.0,-25.0,-30.0)){
+			for(int k=0; k<niveles; k++){
+				for(int i =0; i<enemigos[k].size(); i++){
+					enemigos[k][i].vel=-(enemigos[k][i].vel*1.05);
+					enemigos[k][i].y-=2.5;
+				}	
 			}
 			break;
+		}else if(enemigos[niveles-1][0].collideDown(25.0,-30.0,-25.0,-30.0)){
+				play = false;	
+		}
+	}
+		/*
+/*		}else if(enemigos[i].collideDown(25.0,-30.0,-25.0,-30.0)){
+			for(int j =0; j<numEne*niveles;j++){
+			}
 		}
 
 /*	if(enemigos[0].collideRight(20.0,15.0,20.0,-15.0)){
@@ -57,10 +75,32 @@ void collideWorld(){
 */
 }
 
+void collideBarrera(){
+/*	for(int j=0;j<3;j++)
+		for(int i =0; i<numEne*niveles;i++){
+			barreras[j].collide(enemigos[i]);
+		}
+		*/
+}
+
 void cargarEnemigos(){
-	for(int j=0; j<niveles; j++)
-		for(int i =0; i<numEne;i++)
-			enemigos.push_back(Enemigo::Enemigo(-20.0+6.0*i+(j % 2)*3,24-5*j));
+	int dummy,mor=morados;
+	for(int j=0; j<niveles; j++){
+		enemigos.push_back(vector<Enemigo>::vector());
+		for(int i =0; i<numEne;i++){
+			dummy=dist(eng);
+			if(mor&&dummy){
+				enemigos[j].push_back(
+					Enemigo::Enemigo(
+					-20.0+6.0*i+(j % 2)*3,24-5*j,dummy));
+				mor--;
+			}else{
+				enemigos[j].push_back(
+					Enemigo::Enemigo(
+					-20.0+6.0*i+(j % 2)*3,24-5*j));
+			}
+		}
+	}
 }
 
 void cargarBarreras(){
@@ -74,8 +114,9 @@ void cargarAliado(){
 }
 
 void updateEnemigos(){
-	for(int i =0; i<numEne*niveles;i++)
-		enemigos[i].update();
+	for(int j=0; j<niveles; j++)
+		for(int i =0; i<numEne;i++)
+			enemigos[j][i].update();
 }
 
 void updateBalas(float wallY){
@@ -96,8 +137,9 @@ void updateBalas(float wallY){
 }
 
 void drawEnemigos(){
-	for(int i =0; i<numEne*niveles;i++)
-		enemigos[i].draw();
+	for(int j=0; j<niveles; j++)
+		for(int i =0; i<numEne;i++)
+			enemigos[j][i].draw();
 }
 
 void drawBarreras(){
@@ -223,6 +265,7 @@ void grid(){
 }
 
 void render(){
+	glClearColor(0.0, 0.2, 0.42, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	//grid();
@@ -245,15 +288,19 @@ void render(){
 }
 
 void update(int value){
-	updateEnemigos();
 	collideWorld();
 	updateBalas(WALL_HEIGHT);
 	ally.update(WALL_WIDTH);
-	for(int i=0;i<enemigos.size();++i){
-		ally.collideEnemy(enemigos[i]);
+	updateEnemigos();
+	for(int k=0; k<enemigos.size(); k++){
+		for(int i =0; i<enemigos[k].size(); i++){
+			ally.collideEnemy(enemigos[k][i]);
+		}
 	}
+	collideBarrera();
 	glutPostRedisplay();	
-	glutTimerFunc(delay,update,0);
+	if(play)
+		glutTimerFunc(delay,update,0);
 }
 
 void keyPressed(unsigned char key,int x,int y){
