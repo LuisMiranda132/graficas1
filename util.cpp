@@ -115,6 +115,12 @@ void Enemigo::draw(){
 	glPushMatrix();
 	glTranslatef(this->x,this->y,0.0);
 		glBegin(GL_POLYGON);
+		if(this->secret){
+			glColor3f(0.0f,0.0f,0.0f);
+			glVertex2f(0.0f,1.0f);
+			glVertex2f(-2.0f,-1.0f);
+			glVertex2f(2.0f,-1.0f);
+		}else{
 			if(this->especial)
 				glColor3f(0.53,0.40,0.80);
 			else
@@ -123,6 +129,7 @@ void Enemigo::draw(){
 			glVertex2f(2.0,-1.0);
 			glVertex2f(-2.0,-1.0);
 			glVertex2f(-2.0,1.0);
+		}
 		glEnd();
 	glPopMatrix();
 	glColor3b(1.0,1.0,1.0);
@@ -142,6 +149,10 @@ bool Enemigo::collideWall(float wallX){
 void Enemigo::goDown(){
 	this->vel*=-1.05;
 	this->y-=2.5;
+}
+
+Bala Enemigo::shoot(){
+	return Bala::Bala(this->x,this->y,Bala::BULLET_RADIUS,-2.0f);
 }
 
 bool Enemigo::collideBlock(Bloque b){
@@ -266,7 +277,7 @@ void Aliado::update(float wallX){
 
 Bala Aliado::shoot(){
 	this->shot = true;
-	return Bala::Bala(this->x,this->y,Bala::BULLET_RADIUS);
+	return Bala::Bala(this->x,this->y,Bala::BULLET_RADIUS,4.5f);
 }
 
 void Aliado::onSpecialPress(int code){
@@ -307,6 +318,24 @@ bool Aliado::collideEnemy(Enemigo en){
 	float myDown = this->y - halfHeight;
 
 	if(myLeft <= enemyRight && myRight >= enemyLeft && myUp >= enemyDown && myDown <= enemyUp)
+		return true;
+	return false;
+}
+
+bool Aliado::collideBullet(Bala bala){
+	float bLeft = bala.x - bala.radius;
+	float bRight = bala.x + bala.radius;
+	float bUp = bala.y + bala.radius;
+	float bDown =bala.y - bala.radius;
+
+	float halfWidth = this->width/2.0f;
+	float halfHeight = this->height/2.0f;
+	float myLeft = this->x - halfWidth;
+	float myRight = this->x + halfWidth;
+	float myUp = this->y + halfHeight;
+	float myDown = this->y - halfHeight;
+
+	if(myLeft <= bRight && myRight >= bLeft && myUp >= bDown && myDown <= bUp)
 		return true;
 	return false;
 }

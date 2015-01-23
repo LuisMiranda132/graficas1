@@ -30,13 +30,14 @@ class Enemigo{
 public:	
 	float vel;
 	float x, y;
-	bool especial,toRemove;
+	bool especial,toRemove,secret;
 	void draw();
 	void update();
 	Enemigo(float xi=0,float yi=0,bool e=0)
-		:x(xi),y(yi),vel(0.5),especial(e),toRemove(false){};
+		:x(xi),y(yi),vel(0.5),especial(e),toRemove(false),secret(false){};
 	bool collideWall(float wallX);
 	void goDown();
+	Bala shoot();
 	bool collideBlock(Bloque b);
 	bool collideRight(float xa, float ya,float xb, float yb);
 	bool collideLeft(float xa, float ya,float xb, float yb);
@@ -57,7 +58,7 @@ public:
 	bool collideWall(float wallY);
 	bool collideEnemy(Enemigo en);
 	void update();
-	Bala(float xi=0,float yi=0,float r=0):x(xi),y(yi),radius(r),vel(0.5f),toRemove(false){};
+	Bala(float xi=0,float yi=0,float r=0, float v=4.0f):x(xi),y(yi),radius(r),vel(v),toRemove(false){};
 };
 
 class Barrera{
@@ -115,7 +116,7 @@ public:
 	void onSpecialRelease(int code);
 	void collideWall(float wallX);
 	bool collideEnemy(Enemigo en);
-	void collideBullets();
+	bool collideBullet(Bala bala);
 	Aliado(float xi=0,float yi=0,float w=1.0f, float h=1.0f):
 		x(xi),y(yi),width(w),height(h),vel(0.0f),shot(false){};
 };

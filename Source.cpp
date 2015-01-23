@@ -15,8 +15,16 @@ using namespace std;
 #define DEF_floorGridZSteps	40.0f
 
 #define WALL_WIDTH 25.0f
+#define SECRET_WALL 30.0f
 #define WALL_HEIGHT 30.0f
 #define ALLY_OFFSET 3.0f
+#define ENEMY_RELOAD_TIME 1
+#define SECRET_SHIP_TIME 3
+#define SECRET_SHIP_Y 27.0f
+#define SECRET_SHIP_X -23.0f
+#define SCORE_X 40.0f
+#define SCORE_Y 0.0f
+#define SCORE_OFFSET 15
 
 #define morados 2
 #define numEne 6
@@ -26,15 +34,38 @@ random_device rd;
 mt19937 eng(rd());
 uniform_int_distribution<int> dist(0,1);
 
-
 int delay = 50;
 
 vector<Enemigo> enemigos;
+vector<Enemigo> enemigosSecretos;
 vector<Barrera> barreras;
 vector<Bala> balasEnemigas;
 vector<Bala> balasAliadas;
 Aliado ally;
+int score = 0;
 bool play = true;
+
+void drawNumber(int n,float x, float y){
+	glPushMatrix();
+	glTranslatef(x,y,0.0f);
+	glScalef(0.03,0.03,0.03);
+	glutStrokeCharacter(GLUT_STROKE_ROMAN,n+48);
+	glPopMatrix();
+}
+
+void drawScore(float x, float y){
+	if(score == 0){
+		drawNumber(0,x,y);
+	}else if(score > 0){
+		int a = score;
+		int i = 0;
+		while(a !=0){
+			drawNumber(a%10,x+i*SCORE_OFFSET,y);
+			a /= 10;
+			++i;
+		}
+	}
+}
 
 bool toRemoveEnemy(Enemigo &en){
 	return en.toRemove;
@@ -71,9 +102,17 @@ void collideBarrera(){
 				if(barreras[i].bloques[j].collideBullet(balasAliadas[k])){
 					barreras[i].bloques[j].toRemove = true;
 					balasAliadas[k].toRemove = true;
+					score -= 30;
 				}
 			}
 			balasAliadas.erase(remove_if(balasAliadas.begin(),balasAliadas.end(),toRemoveBala),balasAliadas.end());
+			for(int k=0;k<balasEnemigas.size();++k){
+				if(barreras[i].bloques[j].collideBullet(balasEnemigas[k])){
+					barreras[i].bloques[j].toRemove = true;
+					balasEnemigas[k].toRemove = true;
+				}
+			}
+			balasEnemigas.erase(remove_if(balasEnemigas.begin(),balasEnemigas.end(),toRemoveBala),balasEnemigas.end());
 		}
 		barreras[i].bloques.erase(remove_if(barreras[i].bloques.begin(),barreras[i].bloques.end(),toRemoveBloque),barreras[i].bloques.end());
 	}
@@ -112,16 +151,21 @@ void updateEnemigos(){
 	for(int j=0; j<enemigos.size(); j++)
 		enemigos[j].update();
 
+	for(int j=0; j<enemigosSecretos.size(); j++)
+		enemigosSecretos[j].update();
+
 	for(int k=0; k<enemigos.size(); ++k){
 		for(int j=0;j<balasAliadas.size();++j){
 			Bala* b = &(balasAliadas[j]);
 			if(b->collideEnemy(enemigos[k])){
 				if(enemigos[k].especial){
 					enemigos[k].especial = false;
+					score += 100;
 				}else{
 					enemigos[k].toRemove = true;
 				}
 				balasAliadas[j].toRemove = true;
+				score+=100;
 			}
 		}
 		balasAliadas.erase(remove_if(balasAliadas.begin(),balasAliadas.end(),toRemoveBala),balasAliadas.end());
@@ -135,16 +179,36 @@ void updateEnemigos(){
 		}
 	}
 	enemigos.erase(remove_if(enemigos.begin(),enemigos.end(),toRemoveEnemy),enemigos.end());
+
+	for(int k=0; k<enemigosSecretos.size(); ++k){
+		if(enemigosSecretos[k].x >= SECRET_WALL)
+			enemigosSecretos[k].toRemove = true;
+		for(int j=0;j<balasAliadas.size();++j){
+			Bala* b = &(balasAliadas[j]);
+			if(b->collideEnemy(enemigosSecretos[k])){
+				enemigosSecretos[k].toRemove = true;
+				balasAliadas[j].toRemove = true;
+				score+=300;
+			}
+		}
+		balasAliadas.erase(remove_if(balasAliadas.begin(),balasAliadas.end(),toRemoveBala),balasAliadas.end());
+	}
+	enemigosSecretos.erase(remove_if(enemigosSecretos.begin(),enemigosSecretos.end(),toRemoveEnemy),enemigosSecretos.end());
 }
 
 void updateBalas(float wallY){
 	for(int i=0;i<balasEnemigas.size();++i){
 		balasEnemigas[i].update();
+		if(ally.collideBullet(balasEnemigas[i])){
+			play = false;
+			break;
+		}
 		if(balasEnemigas[i].collideWall(wallY)){
 			balasEnemigas.erase(balasEnemigas.begin()+i);
 			--i;
 		}
 	}
+	if(!play) return;
 	for(int i=0;i<balasAliadas.size();++i){
 		balasAliadas[i].update();
 		if(balasAliadas[i].collideWall(wallY)){
@@ -157,6 +221,8 @@ void updateBalas(float wallY){
 void drawEnemigos(){
 	for(int j=0; j<enemigos.size(); j++)
 		enemigos[j].draw();
+	for(int j=0; j<enemigosSecretos.size(); j++)
+		enemigosSecretos[j].draw();
 }
 
 void drawBarreras(){
@@ -301,6 +367,7 @@ void render(){
 	drawBarreras();
 	drawBalas();
 	drawEnemigos();
+	//drawScore(SCORE_X,SCORE_Y);
 	glutSwapBuffers();
 }
 
@@ -310,14 +377,31 @@ void update(int value){
 	ally.update(WALL_WIDTH);
 	updateEnemigos();
 	collideBarrera();
-	glutPostRedisplay();	
+	glutPostRedisplay();
+	cout << score << endl;
 	if(play)
 		glutTimerFunc(delay,update,0);
 }
 
+void randomEnemyShoot(int value){
+	if(enemigos.size() > 0){
+		uniform_int_distribution<int> shotDist(0,enemigos.size()-1);
+		balasEnemigas.push_back(enemigos[shotDist(eng)].shoot());
+		glutTimerFunc(ENEMY_RELOAD_TIME*1000,randomEnemyShoot,0);
+	}
+}
+
+void secretShip(int value){
+	Enemigo s = Enemigo::Enemigo(SECRET_SHIP_X,SECRET_SHIP_Y);
+	s.secret = true;
+	s.vel = 3.0f;
+	enemigosSecretos.push_back(s);
+	glutTimerFunc(SECRET_SHIP_TIME*1000,secretShip,0);
+}
+
 void keyPressed(unsigned char key,int x,int y){
 	switch(key){
-		case 32: if(!ally.shot) balasAliadas.push_back(ally.shoot()); break;
+		case 32: if(!ally.shot && balasAliadas.size() < 4) balasAliadas.push_back(ally.shoot()); break;
 		default: cout << (int) key << endl;break;
 	}
 }
@@ -361,6 +445,8 @@ int main (int argc, char** argv) {
 	glutReshapeFunc(changeViewport);
 	glutDisplayFunc(render);
 	glutTimerFunc(delay,update,0);
+	glutTimerFunc(ENEMY_RELOAD_TIME*1000,randomEnemyShoot,0);
+	glutTimerFunc(SECRET_SHIP_TIME*1000,secretShip,0);
 	glutKeyboardFunc(keyPressed);
 	glutKeyboardUpFunc(keyReleased);
 	glutSpecialFunc(specialPressed);
