@@ -5,15 +5,23 @@
 #include <cmath>
 using namespace std;
 
+class Bala;
+class Bloque;
+class Barrera;
+class Enemigo;
+class Aliado;
+
 class Bloque{
 
 public:
 	float x,y;
 	float width;
 	float height;
+	bool toRemove;
 
 	void draw();
-	Bloque(float xi=0,float yi=0,float w=3.0f,float h=0.5f):x(xi),y(yi),width(w),height(h){}
+	bool collideBullet(Bala &bala);
+	Bloque(float xi=0,float yi=0,float w=3.0f,float h=0.5f):x(xi),y(yi),width(w),height(h),toRemove(false){};
 };
 
 class Enemigo{
@@ -36,32 +44,36 @@ public:
 	bool collideDown(float xa, float ya,float xb, float yb);
 };
 
+class Bala{
+
+public:
+	static const float BULLET_RADIUS;
+
+	float x, y;
+	float radius;
+	float vel;
+	bool toRemove;
+	void draw();
+	bool collideWall(float wallY);
+	bool collideEnemy(Enemigo en);
+	void update();
+	Bala(float xi=0,float yi=0,float r=0):x(xi),y(yi),radius(r),vel(0.5f),toRemove(false){};
+};
+
 class Barrera{
 
 public:
 	float x, y;
-	vector <pair< bool , Bloque>> bloques;
+	vector <Bloque> bloques;
 	
 	void draw();
 	Barrera(float xi=0,float yi=0):x(xi),y(yi){
-		bloques.push_back(
-			pair< bool , Bloque>::pair(
-			TRUE,Bloque::Bloque(xi-1.75,yi)));
-		bloques.push_back(
-			pair< bool , Bloque>::pair(
-			TRUE,Bloque(xi+1.75,yi)));
-		bloques.push_back(
-			pair< bool , Bloque>::pair(
-			TRUE,Bloque(xi-3.5,yi-1.5)));
-		bloques.push_back(
-			pair< bool , Bloque>::pair(
-			TRUE,Bloque(xi+3.5,yi-1.5)));
-		bloques.push_back(
-			pair< bool ,Bloque>::pair(
-			TRUE,Bloque(xi-1.75,yi-3.0)));
-		bloques.push_back(
-			pair< bool , Bloque>::pair(
-			TRUE, Bloque(xi+1.75,yi-3.0)));
+		bloques.push_back(Bloque::Bloque(xi-1.75,yi));
+		bloques.push_back(Bloque::Bloque(xi+1.75,yi));
+		bloques.push_back(Bloque::Bloque(xi-3.5,yi-1.5));
+		bloques.push_back(Bloque::Bloque(xi+3.5,yi-1.5));
+		bloques.push_back(Bloque::Bloque(xi-1.75,yi-3.0));
+		bloques.push_back(Bloque::Bloque(xi+1.75,yi-3.0));
 /*		bloques.push_back(
 			pair< bool , pair<float, float> >::pair(
 			TRUE,
@@ -80,21 +92,6 @@ public:
 
 void drawBarrera(int x, int y);
 
-class Bala{
-
-public:
-	static const float BULLET_RADIUS;
-
-	float x, y;
-	float radius;
-	float vel;
-	bool toRemove;
-	void draw();
-	bool collideWall(float wallY);
-	bool collideEnemy(Enemigo en);
-	void update();
-	Bala(float xi=0,float yi=0,float r=0):x(xi),y(yi),radius(r),vel(0.5f),toRemove(false){};
-};
 
 class Aliado{
 

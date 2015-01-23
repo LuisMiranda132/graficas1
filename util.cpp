@@ -48,22 +48,39 @@ void Bloque::draw(){
 	glEnd();
 }
 
+bool Bloque::collideBullet(Bala &bala){ 
+	float bulletLeft = bala.x - bala.radius;
+	float bulletRight = bala.x + bala.radius;
+	float bulletUp = bala.y + bala.radius;
+	float bulletDown = bala.y - bala.radius;
+
+	float halfWidth = this->width/2.0f;
+	float halfHeight = this->height/2.0f;
+	float myLeft = this->x - halfWidth;
+	float myRight = this->x + halfWidth;
+	float myUp = this->y + halfHeight;
+	float myDown = this->y - halfHeight;
+
+	if(myLeft <= bulletRight && myRight >= bulletLeft && myUp >= bulletDown && myDown <= bulletUp)
+		return true;
+	return false;
+}
+
+
 //#####################################################################
 //###########################  BARRERA  ###############################
 //#####################################################################
 void Barrera::draw(){
 
 		for(int i=0; i<this->bloques.size();i++){
-			if(this->bloques[i].first){
-				glPushMatrix();
-				glColor3f(i*0.1,i*0.1,i*0.1);
-				glTranslatef(
-					this->bloques[i].second.x,
-					this->bloques[i].second.y,
-					0.0);
-					bloques[i].second.draw();
-				glPopMatrix();	
-			}	
+			glPushMatrix();
+			glColor3f(i*0.1,i*0.1,i*0.1);
+			glTranslatef(
+				this->bloques[i].x,
+				this->bloques[i].y,
+				0.0);
+			bloques[i].draw();
+			glPopMatrix();		
 		}
 }
 
@@ -125,6 +142,24 @@ bool Enemigo::collideWall(float wallX){
 void Enemigo::goDown(){
 	this->vel*=-1.05;
 	this->y-=2.5;
+}
+
+bool Enemigo::collideBlock(Bloque b){
+	float halfBWidth = b.width/2.0f;
+	float halfBheight = b.height/2.0f;
+	float bLeft = b.x - halfBWidth;
+	float bRight = b.x + halfBWidth;
+	float bUp = b.y + halfBheight;
+	float bDown = b.y - halfBheight;
+
+	float myLeft = this->x - 2.0f;
+	float myRight = this->x + 2.0f;
+	float myUp = this->y + 1.0f;
+	float myDown = this->y - 1.0f;
+
+	if(myLeft <= bRight && myRight >= bLeft && myUp >= bDown && myDown <= bUp)
+		return true;
+	return false;
 }
 
 bool Enemigo::collideRight(float xa, float ya, float xb, float yb){

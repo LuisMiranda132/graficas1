@@ -44,6 +44,10 @@ bool toRemoveBala(Bala &bal){
 	return bal.toRemove;
 }
 
+bool toRemoveBloque(Bloque &blo){
+	return blo.toRemove;
+}
+
 void collideWorld(){
 	bool down = false;
 	for(int j=0; j<enemigos.size(); j++){
@@ -61,11 +65,18 @@ void collideWorld(){
 }
 
 void collideBarrera(){
-/*	for(int j=0;j<3;j++)
-		for(int i =0; i<numEne*niveles;i++){
-			barreras[j].collide(enemigos[i]);
+	for(int i=0;i<barreras.size();++i){
+		for(int j=0;j<barreras[i].bloques.size();++j){
+			for(int k=0;k<balasAliadas.size();++k){
+				if(barreras[i].bloques[j].collideBullet(balasAliadas[k])){
+					barreras[i].bloques[j].toRemove = true;
+					balasAliadas[k].toRemove = true;
+				}
+			}
+			balasAliadas.erase(remove_if(balasAliadas.begin(),balasAliadas.end(),toRemoveBala),balasAliadas.end());
 		}
-		*/
+		barreras[i].bloques.erase(remove_if(barreras[i].bloques.begin(),barreras[i].bloques.end(),toRemoveBloque),barreras[i].bloques.end());
+	}
 }
 
 void cargarEnemigos(){
@@ -100,6 +111,30 @@ void cargarAliado(){
 void updateEnemigos(){
 	for(int j=0; j<enemigos.size(); j++)
 		enemigos[j].update();
+
+	for(int k=0; k<enemigos.size(); ++k){
+		for(int j=0;j<balasAliadas.size();++j){
+			Bala* b = &(balasAliadas[j]);
+			if(b->collideEnemy(enemigos[k])){
+				if(enemigos[k].especial){
+					enemigos[k].especial = false;
+				}else{
+					enemigos[k].toRemove = true;
+				}
+				balasAliadas[j].toRemove = true;
+			}
+		}
+		balasAliadas.erase(remove_if(balasAliadas.begin(),balasAliadas.end(),toRemoveBala),balasAliadas.end());
+		for(int j=0;j<barreras.size();++j){
+			for(int i=0;i<barreras[j].bloques.size();++i){
+				if(enemigos[k].collideBlock(barreras[j].bloques[i])){
+					barreras[j].bloques[i].toRemove = true;
+				}
+			}
+			barreras[j].bloques.erase(remove_if(barreras[j].bloques.begin(),barreras[j].bloques.end(),toRemoveBloque),barreras[j].bloques.end());
+		}
+	}
+	enemigos.erase(remove_if(enemigos.begin(),enemigos.end(),toRemoveEnemy),enemigos.end());
 }
 
 void updateBalas(float wallY){
@@ -274,21 +309,6 @@ void update(int value){
 	updateBalas(WALL_HEIGHT);
 	ally.update(WALL_WIDTH);
 	updateEnemigos();
-	for(int k=0; k<enemigos.size(); ++k){
-		for(int j=0;j<balasAliadas.size();++j){
-			Bala* b = &(balasAliadas[j]);
-			if(b->collideEnemy(enemigos[k])){
-				if(enemigos[k].especial){
-					enemigos[k].especial = false;
-				}else{
-					enemigos[k].toRemove = true;
-				}
-				balasAliadas[j].toRemove = true;
-			}
-		}
-		balasAliadas.erase(remove_if(balasAliadas.begin(),balasAliadas.end(),toRemoveBala),balasAliadas.end());
-	}
-	enemigos.erase(remove_if(enemigos.begin(),enemigos.end(),toRemoveEnemy),enemigos.end());
 	collideBarrera();
 	glutPostRedisplay();	
 	if(play)
