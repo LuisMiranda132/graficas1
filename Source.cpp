@@ -363,6 +363,44 @@ void render(){
 		glVertex2f(WALL_WIDTH,-WALL_HEIGHT);
 	glEnd();
 
+	glPushMatrix();
+		glColor3f(0,0,0);
+		glBegin(GL_POLYGON);
+			glVertex2f(2*WALL_WIDTH,WALL_HEIGHT);
+			glVertex2f(-2*WALL_WIDTH,WALL_HEIGHT);
+			glVertex2f(-2*WALL_WIDTH,2*WALL_HEIGHT);
+			glVertex2f(2*WALL_WIDTH,2*WALL_HEIGHT);
+		glEnd();
+	glPopMatrix();
+	glPushMatrix();
+		glColor3f(0,0,0);
+		glBegin(GL_POLYGON);
+			glVertex2f(2*WALL_WIDTH,-WALL_HEIGHT);
+			glVertex2f(-2*WALL_WIDTH,-WALL_HEIGHT);
+			glVertex2f(-2*WALL_WIDTH,2*-WALL_HEIGHT);
+			glVertex2f(2*WALL_WIDTH,2*-WALL_HEIGHT);
+		glEnd();
+	glPopMatrix();
+	glPushMatrix();
+		glColor3f(0,0,0);
+		glBegin(GL_POLYGON);
+			glVertex2f(WALL_WIDTH,3*WALL_HEIGHT);
+			glVertex2f(WALL_WIDTH,-3*WALL_HEIGHT);
+			glVertex2f(3*WALL_WIDTH,-3*WALL_HEIGHT);
+			glVertex2f(3*WALL_WIDTH,3*WALL_HEIGHT);
+		glEnd();
+	glPopMatrix();
+	glPushMatrix();
+		glColor3f(0,0,0);
+		glBegin(GL_POLYGON);
+			glVertex2f(-WALL_WIDTH,3*WALL_HEIGHT);
+			glVertex2f(-WALL_WIDTH,-3*WALL_HEIGHT);
+			glVertex2f(-3*WALL_WIDTH,-3*WALL_HEIGHT);
+			glVertex2f(-3*WALL_WIDTH,3*WALL_HEIGHT);
+		glEnd();
+	glPopMatrix();
+
+
 	ally.draw();
 	drawBarreras();
 	drawBalas();
